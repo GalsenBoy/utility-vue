@@ -29,58 +29,39 @@
             <option value="XOF">Franc-CFA</option>
             <option value="ZAR">Rand sud-africain</option>
         </select>
-        <p>{{ getPrice }}</p>
-        <p>moi</p>
-        <p>{{ convert }}</p>
         <p>{{ new_price }}</p>
     </div>
 </template>
+  
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios'
-const datas = ref([]);
+
 const devise = ref("");
 const rising = ref(0);
 const convert = ref("");
-const exchange_array = ref([]);
-const calcul = ref("");
+const exchange_rates = ref({});
 
 const fetchData = () => {
     axios.get(`https://open.er-api.com/v6/latest/${devise.value}`)
         .then(function (response) {
-            const rates = response.data.rates;
-            datas.value = Object.entries(rates).filter(function (devise) {
-                if (devise[0] === "USD" || devise[0] === "EUR" || devise[0] === "CAD" || devise[0] === "CHF" || devise[0] === "JPY" || devise[0] === "NZD" || devise[0] === "AUD" || devise[0] === "XOF" || devise[0] === "ZAR") {
-                    return devise
-                }
-            })
+            exchange_rates.value = response.data.rates;
         });
 };
 
 onMounted(fetchData);
 watch(devise, fetchData);
-watch(datas, (new_data) => {
-    exchange_array.value = new_data
-})
-const getPrice = computed(() => {
-    return exchange_array.value;
-})
-
-watch(getPrice, (new_price) => {
-    for (const price of new_price) {
-        if (convert.value == price[0]) {
-            calcul.value = price[1] * rising.value;
-        }
-    }
-    return calcul.value
-})
 
 const new_price = computed(() => {
-    return calcul.value;
-})
+    if (!convert.value) {
+        return "";
+    }
+    const exchange_rate = exchange_rates.value[convert.value];
+    if (!exchange_rate) {
+        return "";
+    }
+    return exchange_rate * rising.value;
+});
 
 </script>
-
-
-
-
+  
