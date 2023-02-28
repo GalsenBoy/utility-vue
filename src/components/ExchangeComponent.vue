@@ -13,8 +13,8 @@
             <option value="XOF">Franc-CFA</option>
             <option value="ZAR">Rand sud-africain</option>
         </select>
-        <label for="">Le montant à échanger :</label>
-        <input type="text" name="" id="" v-model="rising">
+        <label class="mt-4" for="">Le montant à échanger :</label>
+        <input class="mb-4" type="text" name="" id="" v-model="rising">
     </div>
     <div class="container" style="width:400px">
         <select class="form-select" name="pets" id="pet-select" v-model="convert">
@@ -46,21 +46,23 @@ const fetchData = () => {
     axios.get(`https://open.er-api.com/v6/latest/${devise.value}`)
         .then(function (response) {
             exchange_rates.value = response.data.rates;
+            console.log(exchange_rates)
         });
 };
 
 onMounted(fetchData);
 watch(devise, fetchData);
-
 const new_price = computed(() => {
     if (!convert.value) {
         return "";
     }
     const exchange_rate = exchange_rates.value[convert.value];
+    // console.log(exchange_rate)
     if (!exchange_rate) {
         return "";
     }
     return exchange_rate * rising.value;
+
 });
 
 </script>
